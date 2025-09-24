@@ -4,17 +4,15 @@ CHROOT=${CHROOT=$(pwd)/rootfs}
 RELEASE=${RELEASE=stable}
 HOST_NAME=${HOST_NAME=openstick-debian}
 
-# Update Debian archive keyring to fix key verification issues
-apt-get update -qq
-apt-get install -y debian-archive-keyring
+# Download latest Debian archive keyring to fix key verification issues
+wget -O /tmp/debian-archive-keyring.deb http://deb.debian.org/debian/pool/main/d/debian-archive-keyring/debian-archive-keyring_2025.1_all.deb
+dpkg -i /tmp/debian-archive-keyring.deb
+rm /tmp/debian-archive-keyring.deb
 
 rm -rf ${CHROOT}
-
-debootstrap --foreign --arch arm64 \
-    --keyring /usr/share/keyrings/debian-archive-keyring.gpg ${RELEASE} ${CHROOT}
+debootstrap --foreign --arch arm64 ${RELEASE} ${CHROOT}
 
 cp $(which qemu-aarch64-static) ${CHROOT}/usr/bin
-
 chroot ${CHROOT} qemu-aarch64-static /bin/bash /debootstrap/debootstrap --second-stage
 
 cat << EOF > ${CHROOT}/etc/apt/sources.list
@@ -39,13 +37,11 @@ done;
 
 rm -f ${CHROOT}/setup.sh
 echo -n > ${CHROOT}/root/.bash_history
-
 echo ${HOST_NAME} > ${CHROOT}/etc/hostname
 sed -i "/localhost/ s/$/ ${HOST_NAME}/" ${CHROOT}/etc/hosts
 
 # setup systemd services
 cp -a configs/system/* ${CHROOT}/etc/systemd/system
-
 cp -a scripts/msm-firmware-loader.sh ${CHROOT}/usr/sbin
 
 # setup NetworkManager
