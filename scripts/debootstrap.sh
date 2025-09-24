@@ -4,6 +4,10 @@ CHROOT=${CHROOT=$(pwd)/rootfs}
 RELEASE=${RELEASE=stable}
 HOST_NAME=${HOST_NAME=openstick-debian}
 
+# Update Debian archive keyring to fix key verification issues
+apt-get update -qq
+apt-get install -y debian-archive-keyring
+
 rm -rf ${CHROOT}
 
 debootstrap --foreign --arch arm64 \
