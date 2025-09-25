@@ -1,7 +1,7 @@
 #!/bin/sh -e
 
 CHROOT=${CHROOT=$(pwd)/rootfs}
-RELEASE=${RELEASE=stable}
+RELEASE=${RELEASE=bookworm}
 HOST_NAME=${HOST_NAME=openstick-debian}
 
 # Download latest Debian archive keyring to fix key verification issues
